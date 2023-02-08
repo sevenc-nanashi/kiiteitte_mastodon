@@ -20,6 +20,7 @@ type apiApp struct {
 
 type apiPostStatus struct {
 	Status string `json:"status"`
+  Visibility string `json:"visibility"`
 }
 
 type apiStatus struct {
@@ -60,6 +61,7 @@ func MastodonPostSong(accessToken string, instance string, nextSong KiiteSongInf
 
 	reqBody := apiPostStatus{
 		Status: fmt.Sprintf("\u266a%s #%s #Kiite\nKiite Cafeできいてます https://cafe.kiite.jp", nextSong.Title, nextSong.VideoId),
+    Visibility: "unlisted",
 	}
 
 	reqBodyJson, err := json.Marshal(reqBody)
