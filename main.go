@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	cmd "github.com/sevenc-nanashi/kiiteitte_mastodon/cmd/main"
-
 	"github.com/joho/godotenv"
 	colorable "github.com/mattn/go-colorable"
 	log "github.com/sirupsen/logrus"
@@ -19,7 +17,7 @@ func main() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetOutput(colorable.NewColorableStdout())
 
-	cmd.Title()
+	Title()
 
 	instance, found := os.LookupEnv("INSTANCE")
 	if !found {
@@ -30,17 +28,17 @@ func main() {
 	accessTokenBytes, err := fs.ReadFile(os.DirFS("."), "access_token.key")
 	var accessToken string
 	if err != nil {
-		accessToken = cmd.Login(instance)
+		accessToken = Login(instance)
 	} else {
 		accessToken = string(accessTokenBytes)
 	}
 
-	cmd.MastodonVerifyApp(accessToken, instance)
+	MastodonVerifyApp(accessToken, instance)
 
 	log.Info("Starting...")
 
 	for {
-		songInfo, err := cmd.KiiteGetNextSong()
+		songInfo, err := KiiteGetNextSong()
 		if err != nil {
 			log.Error(err)
 			log.Info("Retrying in 10 seconds...")
@@ -50,9 +48,9 @@ func main() {
 		currentTime := time.Now()
 		timeUntilStart := (songInfo.StartTime.Sub(currentTime))
 		log.Info(fmt.Sprintf("Waiting for %d seconds...", int(timeUntilStart.Seconds())))
-    time.Sleep(timeUntilStart)
+		time.Sleep(timeUntilStart)
 
-		cmd.MastodonPostSong(accessToken, instance, songInfo)
+		MastodonPostSong(accessToken, instance, songInfo)
 		log.Info("Waiting for 10 seconds...")
 		time.Sleep(10 * time.Second)
 	}
