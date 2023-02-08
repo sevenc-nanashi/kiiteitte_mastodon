@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/sevenc-nanashi/kiiteitte_mastodon/cmd"
+	cmd "github.com/sevenc-nanashi/kiiteitte_mastodon/cmd/main"
 
 	"github.com/joho/godotenv"
 	colorable "github.com/mattn/go-colorable"
