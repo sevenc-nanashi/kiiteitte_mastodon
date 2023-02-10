@@ -11,6 +11,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var refetchTime = 60.0
+
 func main() {
 	godotenv.Load()
 
@@ -38,20 +40,43 @@ func main() {
 	log.Info("Starting...")
 
 	for {
+
 		songInfo, err := KiiteGetNextSong()
 		if err != nil {
 			log.Error(err)
 			log.Info("Retrying in 10 seconds...")
-			time.Sleep(10 * time.Second)
+			Sleep(10 * time.Second)
 			continue
 		}
 		currentTime := time.Now()
 		timeUntilStart := (songInfo.StartTime.Sub(currentTime))
-		log.Info(fmt.Sprintf("Waiting for %d seconds...", int(timeUntilStart.Seconds())))
-		time.Sleep(timeUntilStart)
+
+    firstWaitTime := int(timeUntilStart.Seconds())-int(refetchTime)
+		if firstWaitTime < 0 {
+			log.Info("Song already started. Retrying in 10 seconds...")
+			Sleep(10 * time.Second)
+			continue
+		}
+
+		log.Info(fmt.Sprintf("Waiting for %d seconds (%ds - %ds)...", firstWaitTime, int(timeUntilStart.Seconds()), int(refetchTime)))
+		Sleep(time.Duration(firstWaitTime) * time.Second)
+
+		log.Info("Refetching song info...")
+		songInfo, err = KiiteGetNextSong()
+
+		if err != nil {
+			log.Error(err)
+			log.Info("Retrying in 10 seconds...")
+			Sleep(10 * time.Second)
+			continue
+		}
+
+		timeUntilStart = (songInfo.StartTime.Sub(time.Now()))
+		log.Info(fmt.Sprintf("Waiting for %d seconds...", int(timeUntilStart.Seconds())-int(refetchTime)))
+		Sleep(time.Duration(int(timeUntilStart.Seconds())-int(refetchTime)) * time.Second)
 
 		MastodonPostSong(accessToken, instance, songInfo)
 		log.Info("Waiting for 10 seconds...")
-		time.Sleep(10 * time.Second)
+		Sleep(10 * time.Second)
 	}
 }
