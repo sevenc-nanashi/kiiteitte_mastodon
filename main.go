@@ -40,6 +40,7 @@ func main() {
 	log.Info("Starting...")
 
 	for {
+		log.Info("--------------------------------------------------")
 
 		songInfo, err := KiiteGetNextSong()
 		if err != nil {
@@ -51,7 +52,7 @@ func main() {
 		currentTime := time.Now()
 		timeUntilStart := (songInfo.StartTime.Sub(currentTime))
 
-    firstWaitTime := int(timeUntilStart.Seconds())-int(refetchTime)
+		firstWaitTime := int(timeUntilStart.Seconds()) - int(refetchTime)
 		if firstWaitTime < 0 {
 			log.Info("Song already started. Retrying in 10 seconds...")
 			Sleep(10 * time.Second)
@@ -72,8 +73,8 @@ func main() {
 		}
 
 		timeUntilStart = (songInfo.StartTime.Sub(time.Now()))
-		log.Info(fmt.Sprintf("Waiting for %d seconds...", int(timeUntilStart.Seconds())-int(refetchTime)))
-		Sleep(time.Duration(int(timeUntilStart.Seconds())-int(refetchTime)) * time.Second)
+		log.Info(fmt.Sprintf("Waiting for %d seconds...", int(timeUntilStart.Seconds())))
+		Sleep(time.Duration(int(timeUntilStart.Seconds())) * time.Second)
 
 		MastodonPostSong(accessToken, instance, songInfo)
 		log.Info("Waiting for 10 seconds...")
